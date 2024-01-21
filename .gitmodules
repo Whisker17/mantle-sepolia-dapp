@@ -1,0 +1,3 @@
+[submodule "simpleSwap/lib/openzeppelin-contracts"]
+	path = simpleSwap/lib/openzeppelin-contracts
+	url = https://github.com/Openzeppelin/openzeppelin-contracts
