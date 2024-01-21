@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -9,17 +9,17 @@ contract SimpleSwap is ERC20 {
     IERC20 public token1;
 
     // 代币储备量
-    uint public reserve0;
-    uint public reserve1;
+    uint256 public reserve0;
+    uint256 public reserve1;
 
     // 事件
-    event Mint(address indexed sender, uint amount0, uint amount1);
-    event Burn(address indexed sender, uint amount0, uint amount1);
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Burn(address indexed sender, uint256 amount0, uint256 amount1);
     event Swap(
         address indexed sender,
-        uint amountIn,
+        uint256 amountIn,
         address tokenIn,
-        uint amountOut,
+        uint256 amountOut,
         address tokenOut
     );
 
@@ -30,15 +30,15 @@ contract SimpleSwap is ERC20 {
     }
 
     // 取两个数的最小值
-    function min(uint x, uint y) internal pure returns (uint z) {
+    function min(uint256 x, uint256 y) internal pure returns (uint256 z) {
         z = x < y ? x : y;
     }
 
     // 计算平方根 babylonian method (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
-    function sqrt(uint y) internal pure returns (uint z) {
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
         if (y > 3) {
             z = y;
-            uint x = y / 2 + 1;
+            uint256 x = y / 2 + 1;
             while (x < z) {
                 z = x;
                 x = (y / x + x) / 2;
@@ -54,14 +54,14 @@ contract SimpleSwap is ERC20 {
     // @param amount0Desired 添加的token0数量
     // @param amount1Desired 添加的token1数量
     function addLiquidity(
-        uint amount0Desired,
-        uint amount1Desired
-    ) public returns (uint liquidity) {
+        uint256 amount0Desired,
+        uint256 amount1Desired
+    ) public returns (uint256 liquidity) {
         // 将添加的流动性转入Swap合约，需事先给Swap合约授权
         token0.transferFrom(msg.sender, address(this), amount0Desired);
         token1.transferFrom(msg.sender, address(this), amount1Desired);
         // 计算添加的流动性
-        uint _totalSupply = totalSupply();
+        uint256 _totalSupply = totalSupply();
         if (_totalSupply == 0) {
             // 如果是第一次添加流动性，铸造 L = sqrt(x * y) 单位的LP（流动性提供者）代币
             liquidity = sqrt(amount0Desired * amount1Desired);
@@ -90,13 +90,13 @@ contract SimpleSwap is ERC20 {
     // 转出数量 = (liquidity / totalSupply_LP) * reserve
     // @param liquidity 移除的流动性数量
     function removeLiquidity(
-        uint liquidity
-    ) external returns (uint amount0, uint amount1) {
+        uint256 liquidity
+    ) external returns (uint256 amount0, uint256 amount1) {
         // 获取余额
-        uint balance0 = token0.balanceOf(address(this));
-        uint balance1 = token1.balanceOf(address(this));
+        uint256 balance0 = token0.balanceOf(address(this));
+        uint256 balance1 = token1.balanceOf(address(this));
         // 按LP的比例计算要转出的代币数量
-        uint _totalSupply = totalSupply();
+        uint256 _totalSupply = totalSupply();
         amount0 = (liquidity * balance0) / _totalSupply;
         amount1 = (liquidity * balance1) / _totalSupply;
         // 检查代币数量
@@ -120,10 +120,10 @@ contract SimpleSwap is ERC20 {
     // 可得 delta_y = - delta_x * y / (x + delta_x)
     // 正/负号代表转入/转出
     function getAmountOut(
-        uint amountIn,
-        uint reserveIn,
-        uint reserveOut
-    ) public pure returns (uint amountOut) {
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut
+    ) public pure returns (uint256 amountOut) {
         require(amountIn > 0, "INSUFFICIENT_AMOUNT");
         require(reserveIn > 0 && reserveOut > 0, "INSUFFICIENT_LIQUIDITY");
         amountOut = (amountIn * reserveOut) / (reserveIn + amountIn);
@@ -134,15 +134,15 @@ contract SimpleSwap is ERC20 {
     // @param tokenIn 用于交换的代币合约地址
     // @param amountOutMin 交换出另一种代币的最低数量
     function swap(
-        uint amountIn,
+        uint256 amountIn,
         IERC20 tokenIn,
-        uint amountOutMin
-    ) external returns (uint amountOut, IERC20 tokenOut) {
+        uint256 amountOutMin
+    ) external returns (uint256 amountOut, IERC20 tokenOut) {
         require(amountIn > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
         require(tokenIn == token0 || tokenIn == token1, "INVALID_TOKEN");
 
-        uint balance0 = token0.balanceOf(address(this));
-        uint balance1 = token1.balanceOf(address(this));
+        uint256 balance0 = token0.balanceOf(address(this));
+        uint256 balance1 = token1.balanceOf(address(this));
 
         if (tokenIn == token0) {
             // 如果是token0交换token1
