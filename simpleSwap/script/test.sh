@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# 从.env文件中读取环境变量
 source .env
 
-# 部署 ERC-20 合约的函数
+# 1. deploy ERC20 token
 deploy_erc20() {
     local name=$1
     local symbol=$2
@@ -18,14 +17,17 @@ deploy_erc20() {
     echo "$name Deployed to: $deployed_to"
 }
 
-# 部署 DTA 和 DTB 合约
+echo "=================== Start deploy erc-20 tokens ==================="
+
 deploy_erc20 "DexTestA" "DTA" 1000
 DTA=$deployed_to
 
 deploy_erc20 "DexTestB" "DTB" 1000
 DTB=$deployed_to
 
-# 部署 simpleSwap 合约
+echo "\n=================== Start deploy simpleSwap ==================="
+
+# 2. deploy simpleSwap contract
 resultSS=$(forge create --rpc-url $MANTLE_SEPOLIA_RPC \
     --constructor-args $DTA $DTB \
     --private-key $ACCOUNT_PRIVATE_KEY \
@@ -36,21 +38,25 @@ echo "SimpleSwap Deployed to: $simpleSwap"
 
 # 3. approve tokens to simpleSwap contract
 
+echo "\n=================== Start approve tokens to simpleSwap ==================="
+
 cast send $DTA "approve(address,uint256)" $simpleSwap 1000 --private-key $ACCOUNT_PRIVATE_KEY --rpc-url $MANTLE_SEPOLIA_RPC
 cast send $DTB "approve(address,uint256)" $simpleSwap 1000 --private-key $ACCOUNT_PRIVATE_KEY --rpc-url $MANTLE_SEPOLIA_RPC
 
 # 4. add liquidity to simpleSwap contract
 
+echo "\n=================== Start add liquidity to simpleSwap ==================="
+
 cast send $simpleSwap "addLiquidity(uint256,uint256)" 100 100 --private-key $ACCOUNT_PRIVATE_KEY --rpc-url $MANTLE_SEPOLIA_RPC
 
-# 最后一段检查余额和储备量的逻辑
+# check balance and reserve
 check_balance() {
     local result=$1
     local expected_balance=$2
     local token_name=$3
 
     hex_balance=$(echo $result | awk '{print $NF}')
-    decimal_balance=$(echo "ibase=16; $hex_balance" | bc)
+    decimal_balance=$(printf "%d" $hex_balance)
 
     if [ "$decimal_balance" -ne "$expected_balance" ]; then
         echo "Error: $token_name Balance is not equal to $expected_balance"
@@ -59,13 +65,15 @@ check_balance() {
     fi
 }
 
-# 检查余额
+echo "\n=================== Check balance of simpleSwap contract ==================="
+
 result=$(cast call $simpleSwap "balanceOf(address)" $ACCOUNT_ADDRESS --rpc-url $MANTLE_SEPOLIA_RPC)
 check_balance "$result" 100 "User"
 
 cast send $simpleSwap "swap(uint,address,uint)" 100 $DTA 30 --private-key $ACCOUNT_PRIVATE_KEY --rpc-url $MANTLE_SEPOLIA_RPC
 
-# 检查储备量
+echo "\n=================== Check reserve of two swaped tokenss ==================="
+
 result0=$(cast call $simpleSwap "reserve0()" --rpc-url $MANTLE_SEPOLIA_RPC)
 check_balance "$result0" 200 "Reserve0"
 
