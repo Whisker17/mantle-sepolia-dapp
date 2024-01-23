@@ -21,5 +21,5 @@ Then fill your config with your own values.
 3. Run the script
 
 ```bash
-./script/test.sh
+./script/simpleSwap.sh
 ```
