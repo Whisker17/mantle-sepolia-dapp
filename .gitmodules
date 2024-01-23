@@ -1,6 +1,0 @@
-[submodule "simpleSwap/lib/openzeppelin-contracts"]
-	path = simpleSwap/lib/openzeppelin-contracts
-	url = https://github.com/Openzeppelin/openzeppelin-contracts
-[submodule "simpleSwap/lib/forge-std"]
-	path = simpleSwap/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
