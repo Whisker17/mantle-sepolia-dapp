@@ -4,6 +4,7 @@
 
 - [Simple Swap](docs/simpleSwap.md)
 - [NFT](docs/nft.md)
+- [NFT Swap](docs/nftSwap.md)
 
 ## Usage
 
