@@ -6,6 +6,11 @@
 - [NFT](docs/nft.md)
 - [NFT Swap](docs/nftSwap.md)
 
+## Prerequisites
+
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
+- [Bun](https://bun.sh/docs/installation)
+
 ## Usage
 
 This is a list of the most frequently needed commands.
