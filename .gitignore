@@ -20,4 +20,4 @@ broadcast/*
 broadcast/*/31337/
 
 .vscode
-./script/test.sh
+script/test.sh
