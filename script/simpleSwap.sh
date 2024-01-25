@@ -1,21 +1,10 @@
 #!/bin/bash
 
 source .env
+source "$(dirname "$0")/utils/deploy.sh"
+source "$(dirname "$0")/utils/utils.sh"
 
 # 1. deploy ERC20 token
-deploy_erc20() {
-    local name=$1
-    local symbol=$2
-    local initialSupply=$3
-
-    result=$(forge create --rpc-url $MANTLE_SEPOLIA_RPC \
-                          --constructor-args "$name" "$symbol" $initialSupply \
-                          --private-key $ACCOUNT_PRIVATE_KEY \
-                          src/simpleSwap/erc-20.sol:MyCustomToken)
-
-    deployed_to=$(echo "$result" | grep "Deployed to" | awk '{print $NF}')
-    echo "$name Deployed to: $deployed_to"
-}
 
 echo -e "=================== Start deploy erc-20 tokens ==================="
 
@@ -50,20 +39,6 @@ echo -e "\n=================== Start add liquidity to simpleSwap ===============
 cast send $simpleSwap "addLiquidity(uint256,uint256)" 100 100 --private-key $ACCOUNT_PRIVATE_KEY --rpc-url $MANTLE_SEPOLIA_RPC
 
 # check balance and reserve
-check_balance() {
-    local result=$1
-    local expected_balance=$2
-    local token_name=$3
-
-    hex_balance=$(echo $result | awk '{print $NF}')
-    decimal_balance=$(printf "%d" $hex_balance)
-
-    if [ "$decimal_balance" -ne "$expected_balance" ]; then
-        echo "Error: $token_name Balance is not equal to $expected_balance"
-    else
-        echo "$token_name Balance is equal to $expected_balance"
-    fi
-}
 
 echo -e "\n=================== Check balance of simpleSwap contract ==================="
 
