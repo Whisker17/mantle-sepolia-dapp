@@ -5,6 +5,7 @@
 - [Simple Swap](docs/simpleSwap.md)
 - [NFT](docs/nft.md)
 - [NFT Swap](docs/nftSwap.md)
+- [Simple Lending](docs/simpleLending.md)
 
 ## Prerequisites
 
